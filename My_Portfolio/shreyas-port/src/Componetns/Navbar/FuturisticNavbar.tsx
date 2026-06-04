@@ -9,11 +9,11 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
-  { id: 'cloud', icon: '☁', label: 'Cloud District' },
-  { id: 'ai', icon: '🤖', label: 'AI Lab' },
-  { id: 'security', icon: '🛡', label: 'Security Core' },
-  { id: 'vault', icon: '🚀', label: 'Project Vault' },
-  { id: 'network', icon: '📡', label: 'Network Grid' },
+  { id: 'cloud', icon: '', label: 'Home' },
+  { id: 'ai', icon: '', label: 'Profile' },
+  { id: 'security', icon: '', label: 'Projects' },
+  { id: 'vault', icon: '', label: 'Reviews' },
+  { id: 'network', icon: '', label: 'Reach Out' },
 ];
 
 export default function FuturisticNavbar() {
