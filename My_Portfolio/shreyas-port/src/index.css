@@ -13,3 +13,23 @@ body {
   overflow-x: hidden;
   background: #020617;
 }
+
+@keyframes data-stream {
+  from {
+    transform: translateY(-100%);
+  }
+
+  to {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes data-stream {
+  from {
+    transform: translateY(-100%);
+  }
+
+  to {
+    transform: translateY(100%);
+  }
+}
