@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -214,54 +214,67 @@ export default function AbyssBootSequence({ onComplete }: AbyssBootSequenceProps
 
   // ── Phase orchestration ──────────────────────────────────────────────────
 
-  const runProgressBar = useCallback(() => {
-    speedRef.current = 1.5;
-    setPhase('core');
-
-    let pct = 0;
-    const iv = setInterval(() => {
-      pct = Math.min(pct + Math.random() * 4 + 1, 100);
-      setProgress(pct);
-      if (pct >= 100) {
-        clearInterval(iv);
-        setTimeout(() => runLogs(), 300);
-      }
-    }, 55);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const runLogs = useCallback(() => {
-    speedRef.current = 2.5;
-    setPhase('logs');
-
-    let i = 0;
-    function addNext() {
-      if (i >= BOOT_LOGS.length) {
-        setTimeout(() => runGranted(), 250);
-        return;
-      }
-      setLogLines((prev) => {
-        const next = [...prev, BOOT_LOGS[i]];
-        return next.length > 18 ? next.slice(next.length - 18) : next;
-      });
-      i++;
-      setTimeout(addNext, 55 + Math.random() * 30);
-    }
-    addNext();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const runGranted = useCallback(() => {
-    speedRef.current = 0.3;
-    setPhase('granted');
-    setTimeout(() => {
-      setPhase('done');
-      setVisible(false);
-      setTimeout(onComplete, 400);
-    }, 1600);
-  }, [onComplete]);
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
   useEffect(() => {
-    const timer = setTimeout(() => runProgressBar(), 1800 + 400);
-    return () => clearTimeout(timer);
+    let cancelled = false;
+
+    const runGranted = () => {
+      if (cancelled) return;
+      speedRef.current = 0.3;
+      setPhase('granted');
+      setTimeout(() => {
+        if (cancelled) return;
+        setPhase('done');
+        setVisible(false);
+        setTimeout(() => onCompleteRef.current(), 400);
+      }, 1600);
+    };
+
+    const runLogs = () => {
+      if (cancelled) return;
+      speedRef.current = 2.5;
+      setPhase('logs');
+      let i = 0;
+      function addNext() {
+        if (cancelled) return;
+        if (i >= BOOT_LOGS.length) {
+          setTimeout(runGranted, 250);
+          return;
+        }
+        setLogLines((prev) => {
+          const next = [...prev, BOOT_LOGS[i]];
+          return next.length > 18 ? next.slice(next.length - 18) : next;
+        });
+        i++;
+        setTimeout(addNext, 55 + Math.random() * 30);
+      }
+      addNext();
+    };
+
+    const runProgressBar = () => {
+      if (cancelled) return;
+      speedRef.current = 1.5;
+      setPhase('core');
+      let pct = 0;
+      const iv = setInterval(() => {
+        if (cancelled) { clearInterval(iv); return; }
+        pct = Math.min(pct + Math.random() * 4 + 1, 100);
+        setProgress(pct);
+        if (pct >= 100) {
+          clearInterval(iv);
+          setTimeout(runLogs, 300);
+        }
+      }, 55);
+    };
+
+    const timer = setTimeout(runProgressBar, 2200);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!visible) return null;
