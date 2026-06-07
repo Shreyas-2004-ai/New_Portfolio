@@ -1,20 +1,18 @@
 import { useState } from "react";
 import Home from "./Pages/Home";
 import AbyssBootSequence from "./Components/Loader/AbyssBootSequence";
+import { ErrorBoundary } from "./ErrorBoundary";
 
 function App() {
   const [hasBooted, setHasBooted] = useState(false);
 
   return (
-    <>
-      {/* Home is always mounted so it's ready when loader finishes */}
+    <ErrorBoundary>
       <Home />
-
-      {/* Loader overlays on top until complete */}
       {!hasBooted && (
         <AbyssBootSequence onComplete={() => setHasBooted(true)} />
       )}
-    </>
+    </ErrorBoundary>
   );
 }
 

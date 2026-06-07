@@ -242,11 +242,12 @@ export default function AbyssBootSequence({ onComplete }: AbyssBootSequenceProps
           setTimeout(runGranted, 250);
           return;
         }
+        const line = BOOT_LOGS[i]; // capture before incrementing
+        i++;
         setLogLines((prev) => {
-          const next = [...prev, BOOT_LOGS[i]];
+          const next = [...prev, line];
           return next.length > 18 ? next.slice(next.length - 18) : next;
         });
-        i++;
         setTimeout(addNext, 55 + Math.random() * 30);
       }
       addNext();
