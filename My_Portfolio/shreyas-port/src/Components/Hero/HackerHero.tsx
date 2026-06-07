@@ -1,8 +1,5 @@
-import { useState, useEffect, type MouseEvent } from 'react';
+import { useState, useEffect, useRef, type MouseEvent } from 'react';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { Particles } from "@tsparticles/react";
-import { loadSlim } from "@tsparticles/slim";
-import { tsParticles } from "@tsparticles/engine";
 
 // ==========================================
 // 1. LEFT SIDE 3D ELEMENTS (AI & Backend)
@@ -257,17 +254,103 @@ const QuantumColliderName = ({ text }: { text: string }) => {
   );
 };
 
+// Canvas-based particle network (no third-party dependency)
+const ParticleCanvas = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const mouseRef = useRef({ x: -9999, y: -9999 });
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animId: number;
+    const particles: { x: number; y: number; vx: number; vy: number; }[] = [];
+
+    const resize = () => {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    const onMouseMove = (e: globalThis.MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      mouseRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    };
+    canvas.parentElement?.addEventListener('mousemove', onMouseMove);
+
+    for (let i = 0; i < 70; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.6,
+        vy: (Math.random() - 0.5) * 0.6,
+      });
+    }
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const mx = mouseRef.current.x;
+      const my = mouseRef.current.y;
+
+      for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(74,222,128,0.6)';
+        ctx.fill();
+
+        // connect nearby particles
+        for (const q of particles) {
+          const dx = p.x - q.x, dy = p.y - q.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 180) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(q.x, q.y);
+            ctx.strokeStyle = `rgba(22,163,74,${0.25 * (1 - dist / 180)})`;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+        }
+
+        // connect to mouse
+        const mdx = p.x - mx, mdy = p.y - my;
+        const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
+        if (mdist < 250) {
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(mx, my);
+          ctx.strokeStyle = `rgba(74,222,128,${0.8 * (1 - mdist / 250)})`;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+      }
+      animId = requestAnimationFrame(draw);
+    };
+    draw();
+
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener('resize', resize);
+      canvas.parentElement?.removeEventListener('mousemove', onMouseMove);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0 opacity-80" />;
+};
+
 // ==========================================
 // 4. MAIN HERO COMPONENT
 // ==========================================
 
 export default function HackerHero() {
-  const [engineReady, setEngineReady] = useState(false);
-
-  useEffect(() => {
-    loadSlim(tsParticles).then(() => setEngineReady(true));
-  }, []);
-
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   const normX = useMotionValue(0);
@@ -300,35 +383,7 @@ export default function HackerHero() {
       <CloudMetricsBadge />
 
       {/* --- PARTICLE NETWORK --- */}
-      {engineReady && (
-        <Particles
-          id="tsparticles"
-          className="absolute inset-0 z-0 opacity-100"
-          options={{
-            background: { color: { value: "transparent" } },
-            fpsLimit: 60,
-            interactivity: {
-              events: { onHover: { enable: true, mode: "grab" } },
-              modes: {
-                grab: {
-                  distance: 250,
-                  links: { opacity: 0.9, color: "#4ade80", width: 2.5 }
-                }
-              },
-            },
-            particles: {
-              color: { value: "#4ade80" },
-              links: { color: "#16a34a", distance: 180, enable: true, opacity: 0.25, width: 1.5 },
-              move: { enable: true, speed: 0.8, direction: "none", random: true, straight: false, outModes: { default: "bounce" } },
-              number: { density: { enable: true, width: 800, height: 800 }, value: 70 },
-              opacity: { value: 0.6 },
-              shape: { type: "circle" },
-              size: { value: { min: 1.5, max: 2.5 } },
-            },
-            detectRetina: true,
-          }}
-        />
-      )}
+      <ParticleCanvas />
 
       {/* Ambient Glow */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(22,101,52,0.3)_0%,rgba(10,22,15,1)_70%)] pointer-events-none z-0" />
