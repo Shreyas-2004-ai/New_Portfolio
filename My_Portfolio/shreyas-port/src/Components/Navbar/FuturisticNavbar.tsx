@@ -1,4 +1,4 @@
-import React, { useState, MouseEvent } from 'react';
+import React, { useState, type MouseEvent } from 'react';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 
 // --- Types & Data ---
@@ -10,8 +10,8 @@ type NavItem = {
 
 // SVG Icons retained, styled for the terminal look
 const navItems: NavItem[] = [
-  { 
-    id: 'cloud', 
+  {
+    id: 'cloud',
     label: 'sys.home',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -19,8 +19,8 @@ const navItems: NavItem[] = [
       </svg>
     )
   },
-  { 
-    id: 'ai', 
+  {
+    id: 'ai',
     label: 'usr.profile',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -28,8 +28,8 @@ const navItems: NavItem[] = [
       </svg>
     )
   },
-  { 
-    id: 'security', 
+  {
+    id: 'security',
     label: 'dir.projects',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -37,8 +37,8 @@ const navItems: NavItem[] = [
       </svg>
     )
   },
-  { 
-    id: 'vault', 
+  {
+    id: 'vault',
     label: 'log.reviews',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -46,8 +46,8 @@ const navItems: NavItem[] = [
       </svg>
     )
   },
-  { 
-    id: 'network', 
+  {
+    id: 'network',
     label: 'net.connect',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -111,9 +111,8 @@ export default function HackerNavbar() {
               <button
                 key={item.id}
                 onClick={() => setActiveItem(item.id)}
-                className={`relative px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 group overflow-hidden ${
-                  isActive ? 'text-green-400' : 'text-green-800 hover:text-green-300'
-                }`}
+                className={`relative px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 group overflow-hidden ${isActive ? 'text-green-400' : 'text-green-800 hover:text-green-300'
+                  }`}
               >
                 {/* Active Sliding Indicator - Snappy Physics */}
                 {isActive && (
@@ -139,7 +138,7 @@ export default function HackerNavbar() {
                   <span className={`text-base transition-all duration-300 ${isActive ? 'drop-shadow-[0_0_8px_rgba(74,222,128,0.8)]' : ''}`}>
                     {item.icon}
                   </span>
-                  
+
                   {/* Hacker Terminal Text Format */}
                   <span className="tracking-widest flex items-center gap-1">
                     {isActive && <motion.span initial={{ opacity: 0, x: 5 }} animate={{ opacity: 1, x: 0 }}>[</motion.span>}
@@ -155,9 +154,9 @@ export default function HackerNavbar() {
 
       {/* --- MOBILE HEADER (Name + Toggle) --- */}
       <div className="fixed top-0 left-0 w-full p-4 z-[60] lg:hidden flex justify-between items-center pointer-events-none">
-        
+
         {/* Terminal Brand Name */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
@@ -196,9 +195,9 @@ export default function HackerNavbar() {
           >
             {/* Terminal Grid overlay */}
             <div className="absolute inset-0 opacity-10 bg-[linear-gradient(rgba(74,222,128,0.2)_1px,transparent_1px),linear-gradient(90deg,rgba(74,222,128,0.2)_1px,transparent_1px)] bg-[size:40px_40px]" />
-            
+
             <div className="relative w-full max-w-sm rounded-2xl border border-green-500/50 bg-[#051f0a]/80 p-6 shadow-[0_0_50px_rgba(74,222,128,0.15)] overflow-hidden mt-16">
-              
+
               {/* Vertical Laser Scanning line */}
               <motion.div
                 animate={{ top: ['-10%', '110%'] }}
@@ -223,11 +222,10 @@ export default function HackerNavbar() {
                       setActiveItem(item.id);
                       setTimeout(() => setIsMobileMenuOpen(false), 200);
                     }}
-                    className={`flex items-center gap-4 p-4 rounded-xl border ${
-                      activeItem === item.id
+                    className={`flex items-center gap-4 p-4 rounded-xl border ${activeItem === item.id
                         ? 'bg-[#0a2e16] border-green-400/50 text-green-300 shadow-[inset_0_0_20px_rgba(74,222,128,0.15)]'
                         : 'border-transparent text-green-700 hover:text-green-400 hover:bg-[#051f0a]'
-                    } transition-all duration-300`}
+                      } transition-all duration-300`}
                   >
                     <span className="text-xl flex items-center justify-center drop-shadow-[0_0_5px_rgba(74,222,128,0.5)]">
                       {item.icon}
