@@ -1,7 +1,8 @@
 import { useState, useEffect, type MouseEvent } from 'react';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { Particles, ParticlesProvider } from "@tsparticles/react";
+import { Particles } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
+import { tsParticles } from "@tsparticles/engine";
 
 // ==========================================
 // 1. LEFT SIDE 3D ELEMENTS (AI & Backend)
@@ -17,7 +18,7 @@ const AIOrbitalCore = () => (
       <div className="absolute inset-0 rounded-full bg-green-500/5 shadow-[0_0_60px_20px_rgba(74,222,128,0.08)]" />
       <svg className="absolute inset-0 w-full h-full opacity-20" viewBox="0 0 192 192">
         <motion.g animate={{ rotate: 360 }} transition={{ duration: 30, repeat: Infinity, ease: "linear" }}>
-          {[0,60,120,180,240,300].map((angle, i) => {
+          {[0, 60, 120, 180, 240, 300].map((angle, i) => {
             const rad = (angle * Math.PI) / 180;
             const x = 96 + 80 * Math.cos(rad);
             const y = 96 + 80 * Math.sin(rad);
@@ -52,13 +53,13 @@ const AIDataStream = () => (
   >
     <div className="w-36">
       <svg width="100%" viewBox="0 0 130 90" className="opacity-60">
-        {[[20,15],[20,45],[20,75]].map(([y1], ni) =>
-          [[65,22],[65,45],[65,68]].map(([,y2], nj) => (
+        {[[20, 15], [20, 45], [20, 75]].map(([y1], ni) =>
+          [[65, 22], [65, 45], [65, 68]].map(([, y2], nj) => (
             <motion.line key={`${ni}-${nj}`} x1="20" y1={y1} x2="65" y2={y2} stroke="#16a34a" strokeWidth="0.8" animate={{ opacity: [0.1, 0.6, 0.1] }} transition={{ duration: 1.5, delay: (ni + nj) * 0.2, repeat: Infinity }} />
           ))
         )}
-        {[[65,22],[65,45],[65,68]].map(([x1, y1], ni) =>
-          [[110,30],[110,60]].map(([,y2], nj) => (
+        {[[65, 22], [65, 45], [65, 68]].map(([x1, y1], ni) =>
+          [[110, 30], [110, 60]].map(([, y2], nj) => (
             <motion.line key={`b-${ni}-${nj}`} x1={x1} y1={y1} x2="110" y2={y2} stroke="#16a34a" strokeWidth="0.8" animate={{ opacity: [0.1, 0.8, 0.1] }} transition={{ duration: 1.5, delay: (ni + nj) * 0.3 + 0.5, repeat: Infinity }} />
           ))
         )}
@@ -141,7 +142,7 @@ const NetworkTopology = () => (
     <svg width="120" height="100" viewBox="0 0 120 100" className="opacity-60">
       <motion.circle cx="60" cy="50" r="8" fill="none" stroke="#4ade80" strokeWidth="1.5" animate={{ r: [8, 10, 8] }} transition={{ duration: 2, repeat: Infinity }} />
       <circle cx="60" cy="50" r="3" fill="#4ade80" />
-      {[[20,20],[100,20],[15,80],[105,80],[60,8]].map(([x,y], i) => (
+      {[[20, 20], [100, 20], [15, 80], [105, 80], [60, 8]].map(([x, y], i) => (
         <g key={i}>
           <motion.line x1="60" y1="50" x2={x} y2={y} stroke="#16a34a" strokeWidth="1" strokeDasharray="3 4" animate={{ opacity: [0.2, 0.8, 0.2] }} transition={{ duration: 2, delay: i * 0.3, repeat: Infinity }} />
           <motion.circle cx={x} cy={y} r="4" fill="#0d2114" stroke="#22c55e" strokeWidth="1" animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.5, delay: i * 0.25, repeat: Infinity }} />
@@ -209,7 +210,7 @@ const HolographicRoleCycler = () => {
     const interval = setInterval(() => setIndex((prev) => (prev + 1) % roles.length), 3000);
     return () => clearInterval(interval);
   }, [roles.length]);
-  
+
   return (
     <div className="relative h-12 w-full overflow-hidden flex justify-center items-center perspective-[1000px] mt-2 mb-6 pointer-events-none">
       <AnimatePresence mode="popLayout">
@@ -261,6 +262,12 @@ const QuantumColliderName = ({ text }: { text: string }) => {
 // ==========================================
 
 export default function HackerHero() {
+  const [engineReady, setEngineReady] = useState(false);
+
+  useEffect(() => {
+    loadSlim(tsParticles).then(() => setEngineReady(true));
+  }, []);
+
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   const normX = useMotionValue(0);
@@ -279,7 +286,7 @@ export default function HackerHero() {
 
   return (
     <div onMouseMove={handleMouseMove} className="relative min-h-screen flex items-center justify-center bg-[#0a160f] overflow-hidden font-mono pt-20">
-      
+
       <EdgeNetworkSignals />
 
       {/* --- LEFT SIDE ELEMENTS --- */}
@@ -292,8 +299,8 @@ export default function HackerHero() {
       <NetworkTopology />
       <CloudMetricsBadge />
 
-      {/* --- THE MOUSE/CURSOR PARTICLE NETWORK --- */}
-      <ParticlesProvider init={async (engine) => { await loadSlim(engine); }}>
+      {/* --- PARTICLE NETWORK --- */}
+      {engineReady && (
         <Particles
           id="tsparticles"
           className="absolute inset-0 z-0 opacity-100"
@@ -302,11 +309,11 @@ export default function HackerHero() {
             fpsLimit: 60,
             interactivity: {
               events: { onHover: { enable: true, mode: "grab" } },
-              modes: { 
-                grab: { 
-                  distance: 250, 
-                  links: { opacity: 0.9, color: "#4ade80", width: 2.5 } // Thick, bright tracking lines
-                } 
+              modes: {
+                grab: {
+                  distance: 250,
+                  links: { opacity: 0.9, color: "#4ade80", width: 2.5 }
+                }
               },
             },
             particles: {
@@ -321,7 +328,7 @@ export default function HackerHero() {
             detectRetina: true,
           }}
         />
-      </ParticlesProvider>
+      )}
 
       {/* Ambient Glow */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(22,101,52,0.3)_0%,rgba(10,22,15,1)_70%)] pointer-events-none z-0" />
@@ -343,7 +350,7 @@ export default function HackerHero() {
 
       {/* --- CENTER CONTENT --- */}
       <div className="relative z-20 flex flex-col items-center text-center px-6 max-w-2xl lg:max-w-4xl w-full mt-[-5vh] pointer-events-none">
-        
+
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -374,18 +381,18 @@ export default function HackerHero() {
         >
           <button className="relative group px-8 py-3.5 bg-[#0d2114] border border-green-500 text-green-400 font-bold tracking-widest text-xs md:text-sm hover:bg-green-400 hover:text-[#0a160f] transition-all duration-300 rounded shadow-[0_0_15px_rgba(74,222,128,0.3)] hover:shadow-[0_0_30px_rgba(74,222,128,0.8)] overflow-hidden">
             <span className="relative z-10 flex items-center justify-center gap-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
               READ_MORE
             </span>
           </button>
-          
+
           <a
             href="/resume.pdf"
             download="Shreyas_S_Sanil_Resume.pdf"
             className="flex items-center justify-center px-8 py-3.5 bg-transparent border border-green-600/80 text-green-400 font-bold tracking-widest text-xs md:text-sm hover:border-green-400 hover:text-green-300 hover:bg-[#0d2114]/50 transition-all duration-300 rounded backdrop-blur-sm cursor-pointer group"
           >
             <span className="flex items-center gap-2">
-              <svg className="w-4 h-4 group-hover:-translate-y-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              <svg className="w-4 h-4 group-hover:-translate-y-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
               DOWNLOAD_RESUME
             </span>
           </a>
