@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type Phase = 'signal' | 'core' | 'logs' | 'granted' | 'done';
+type Phase = 'signal' | 'core' | 'logs' | 'granted';
 
 interface AbyssBootSequenceProps {
   onComplete: () => void;
@@ -226,9 +226,8 @@ export default function AbyssBootSequence({ onComplete }: AbyssBootSequenceProps
       setPhase('granted');
       setTimeout(() => {
         if (cancelled) return;
-        setPhase('done');
         setVisible(false);
-        setTimeout(() => onCompleteRef.current(), 400);
+        onCompleteRef.current();
       }, 1600);
     };
 
@@ -297,9 +296,6 @@ export default function AbyssBootSequence({ onComplete }: AbyssBootSequenceProps
       {phase === 'core'    && <CorePhase progress={progress} />}
       {phase === 'logs'    && <LogsPhase lines={logLines} />}
       {phase === 'granted' && <GrantedPhase />}
-
-      {/* Fade-out overlay when done */}
-      {phase === 'done' && <div style={styles.fadeOut} />}
     </div>
   );
 }
