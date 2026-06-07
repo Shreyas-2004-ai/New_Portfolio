@@ -71,9 +71,14 @@ export default function HackerNavbar() {
     mouseY.set(clientY - top);
   };
 
-  // Extremely snappy spring physics for the spotlight
   const smoothX = useSpring(mouseX, { stiffness: 150, damping: 15 });
   const smoothY = useSpring(mouseY, { stiffness: 150, damping: 15 });
+
+  const spotlightBg = useTransform(
+    [smoothX, smoothY],
+    ([x, y]: number[]) =>
+      `radial-gradient(100px circle at ${x}px ${y}px, rgba(74, 222, 128, 0.15), transparent 80%)`
+  );
 
   return (
     <div className="font-mono">
@@ -92,16 +97,9 @@ export default function HackerNavbar() {
           {/* Animated Glowing Border Effect */}
           <div className="absolute inset-0 rounded-2xl pointer-events-none animate-pulse opacity-30 shadow-[inset_0_0_20px_rgba(74,222,128,0.2)]" />
 
-          {/* Mouse-following Spotlight (Toxic Green) */}
           <motion.div
             className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-            style={{
-              background: useTransform(
-                [smoothX, smoothY],
-                ([x, y]) =>
-                  `radial-gradient(100px circle at ${x}px ${y}px, rgba(74, 222, 128, 0.15), transparent 80%)`
-              ),
-            }}
+            style={{ background: spotlightBg }}
           />
 
           {navItems.map((item) => {
@@ -223,8 +221,8 @@ export default function HackerNavbar() {
                       setTimeout(() => setIsMobileMenuOpen(false), 200);
                     }}
                     className={`flex items-center gap-4 p-4 rounded-xl border ${activeItem === item.id
-                        ? 'bg-[#0a2e16] border-green-400/50 text-green-300 shadow-[inset_0_0_20px_rgba(74,222,128,0.15)]'
-                        : 'border-transparent text-green-700 hover:text-green-400 hover:bg-[#051f0a]'
+                      ? 'bg-[#0a2e16] border-green-400/50 text-green-300 shadow-[inset_0_0_20px_rgba(74,222,128,0.15)]'
+                      : 'border-transparent text-green-700 hover:text-green-400 hover:bg-[#051f0a]'
                       } transition-all duration-300`}
                   >
                     <span className="text-xl flex items-center justify-center drop-shadow-[0_0_5px_rgba(74,222,128,0.5)]">
