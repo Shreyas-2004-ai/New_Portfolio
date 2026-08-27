@@ -57,7 +57,7 @@ const navItems: NavItem[] = [
   },
 ];
 
-export default function HackerNavbar() {
+export default function HackerNavbar({ onNavClick }: { onNavClick?: (id: string) => void }) {
   const [activeItem, setActiveItem] = useState<string>(navItems[0].id);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -108,7 +108,7 @@ export default function HackerNavbar() {
             return (
               <button
                 key={item.id}
-                onClick={() => setActiveItem(item.id)}
+                onClick={() => { setActiveItem(item.id); onNavClick?.(item.id); }}
                 className={`relative px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 group overflow-hidden ${isActive ? 'text-green-400' : 'text-green-800 hover:text-green-300'
                   }`}
               >
@@ -218,6 +218,7 @@ export default function HackerNavbar() {
                     transition={{ delay: idx * 0.08, type: 'spring', stiffness: 300, damping: 20 }}
                     onClick={() => {
                       setActiveItem(item.id);
+                      onNavClick?.(item.id);
                       setTimeout(() => setIsMobileMenuOpen(false), 200);
                     }}
                     className={`flex items-center gap-4 p-4 rounded-xl border ${activeItem === item.id
